@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 }
+ .shopcard{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid black ;
+  border-radius: 5px;
+  margin-top: 2rem;
+  width: 450px;
+  padding: 10px;
+ }
