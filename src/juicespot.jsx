@@ -10,17 +10,18 @@ export default function JuiceSpot() {
       .then(data => setJuices(data))
       .catch(err => console.error(err));
   }, []);
-  const addtocart=async(price,item_name,quantity)=>{
+  const addtocart=async(price,item_name,quantity,id)=>{
     
     try {
       const response = await fetch("http://localhost:3000/addtocart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(price,item_name,quantity),
+        body: JSON.stringify({price,item_name,quantity}),
       });
 
       const result = await response.text();
       alert(result);
+      setQuantities({ ...quantities, [id]: 1 });
     } catch (error) {
       console.error("Error:", error);
       alert("An error occurred while adding item to cart");
@@ -58,7 +59,7 @@ export default function JuiceSpot() {
               </li>
             </ul>
             <div className="card-body">
-              <a href="#" className="btn btn-primary" onClick={()=>addtocart(juice.price,juice.item_name,quantities[juice.index]|| 1)}>Add to Cart</a>
+              <a href="#" className="btn btn-primary" onClick={()=>addtocart(juice.price,juice.item_name,quantities[juice.id]|| 1,juice.id)}>Add to Cart</a>
             </div>
           </div>
         ))}
