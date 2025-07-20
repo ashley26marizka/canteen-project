@@ -43,6 +43,16 @@ app.get("/cartdata",async(req,res)=>{
   }
 });
 
+app.get("/juiceshopdata",async(req,res)=>{
+  try{
+    const result=await db.query("SELECT * FROM juicespot_stock");
+    res.json(result.rows);
+  }catch(err){
+    console.log(err);
+    res.status(500).send("server error");
+  }
+});
+
 app.patch("/cartdata/:id",async(req,res)=>{
   const {id}= req.params;
   const {quantity,totalamount}=req.body;
@@ -60,6 +70,18 @@ app.delete("/cartdata/:id",async(req,res)=>{
   const {id}=req.params;
   try{
     await db.query("DELETE FROM cart WHERE id=$1",[id]);
+    res.status(200).send("Item deleted Successfully");
+  }
+  catch(err){
+    console.error("Error on deleting item from cart",err);
+    res.status(500).send("Error on deleting item");
+  }
+});
+
+app.delete("/juiceshopdata/:id",async(req,res)=>{
+  const {id}=req.params;
+  try{
+    await db.query("DELETE FROM juiceshop_stock WHERE id=$1",[id]);
     res.status(200).send("Item deleted Successfully");
   }
   catch(err){
@@ -107,28 +129,32 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const checkuser = await db.query("SELECT * FROM appuser WHERE email=$1", [email]);
+        const admin = await db.query("SELECT * FROM admin WHERE email=$1", [email]);
+        if(admin.rows.length>0){
+          const storedpassword = admin.rows[0].password;
+          const ismatch=await bcrypt.compare(password,storedpassword);
+          if(ismatch){
+            return res.status(200).json({ message: "Admin login successful", role: "admin" });
+          }
+           } else {
+            return res.status(401).send("Incorrect password");
+          }
+        
 
-    if (checkuser.rows.length === 0) {
-      return res.status(404).send("User not found");
+    const user = await db.query("SELECT * FROM appuser WHERE email = $1", [email]);
+    if (user.rows.length === 0) return res.status(404).send("User not found");
+
+    const storedPassword = user.rows[0].password;
+    const isMatch = await bcrypt.compare(password, storedPassword);
+    if (isMatch) {
+      return res.status(200).json({ message: "User login successful", role: "user", user: user.rows[0] });
+    } else {
+      return res.status(401).send("Incorrect password");
     }
 
-    const storedpassword = checkuser.rows[0].password;
-    bcrypt.compare(password, storedpassword, (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Server error");
-      }
-
-      if (result) {
-        res.status(200).send("Login successful");
-      } else {
-        res.status(401).send("Incorrect password");
-      }
-    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Database error");
+    res.status(500).send("Server error");
   }
 });
 

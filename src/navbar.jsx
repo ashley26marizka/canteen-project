@@ -21,6 +21,9 @@ export default function Navbar() {
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item me-3">
+              <Link className="nav-link" to="/login">Login</Link>
+            </li>
+            <li className="nav-item me-3">
               <Link className="nav-link" to="/shops">Home</Link>
             </li>
             <li className="nav-item me-3">

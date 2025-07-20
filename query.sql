@@ -14,3 +14,6 @@ CREATE TABLE juicespot_stock(
 	quantity INT,
 	price INT
 );
+
+
+
